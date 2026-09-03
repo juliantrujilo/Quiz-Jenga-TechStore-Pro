@@ -1,0 +1,826 @@
+<title>Quiz S11–S17 TechStore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+
+<style>
+:root {
+  --bg:       #0f1117;
+  --surface:  #1a1f2e;
+  --surface2: #222840;
+  --border:   #2a3352;
+  --txt:      #e2e8f0;
+  --dim:      #8892a4;
+  --accent:   #3b82f6;
+  --green:    #22c55e;
+  --red:      #ef4444;
+  --yellow:   #f59e0b;
+  --purple:   #a78bfa;
+  --orange:   #f97316;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  user-select: none;
+}
+
+/* ══════════════════════════════════════
+   PANTALLA SETUP
+══════════════════════════════════════ */
+#screen-setup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  gap: 40px;
+}
+.setup-title {
+  text-align: center;
+}
+.setup-title .eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 10px;
+}
+.setup-title h1 {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 800; color: var(--txt);
+  line-height: 1.2;
+}
+.setup-title p {
+  font-size: 14px; color: var(--dim); margin-top: 8px;
+}
+
+/* Nombres de equipos */
+.teams-setup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  width: 100%;
+  max-width: 640px;
+}
+.team-input-wrap {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color .2s;
+}
+.team-input-wrap.a { border-color: rgba(59,130,246,.4); }
+.team-input-wrap.b { border-color: rgba(249,115,22,.4); }
+.team-input-wrap label {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+}
+.team-input-wrap.a label { color: var(--accent); }
+.team-input-wrap.b label { color: var(--orange); }
+.team-input-wrap input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px; font-weight: 700;
+  color: var(--txt);
+  width: 100%;
+  outline: none;
+  transition: border-color .2s;
+}
+.team-input-wrap.a input:focus { border-color: var(--accent); }
+.team-input-wrap.b input:focus { border-color: var(--orange); }
+
+/* Reglas */
+.rules-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px 28px;
+  width: 100%;
+  max-width: 640px;
+}
+.rules-card h3 {
+  font-size: 13px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--dim); margin-bottom: 16px;
+}
+.rules-list {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.rule-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  font-size: 13px; color: var(--txt); line-height: 1.5;
+}
+.rule-icon {
+  font-size: 16px; flex-shrink: 0; margin-top: 1px;
+}
+.rule-item strong { color: var(--txt); font-weight: 600; }
+
+.btn-start {
+  padding: 16px 48px;
+  background: var(--accent);
+  border: none; border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px; font-weight: 700;
+  color: #fff; cursor: pointer;
+  transition: opacity .15s, transform .1s;
+}
+.btn-start:hover { opacity: .9; transform: translateY(-1px); }
+.btn-start:active { transform: translateY(0); }
+
+/* ══════════════════════════════════════
+   PANTALLA QUIZ
+══════════════════════════════════════ */
+#screen-quiz { display: none; flex-direction: column; flex: 1; }
+
+/* ── TOP BAR ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.logo { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--accent); }
+.session-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 5px;
+  background: rgba(167,139,250,.15); color: var(--purple);
+  border: 1px solid rgba(167,139,250,.3);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── MARCADOR ── */
+.scoreboard {
+  display: flex; align-items: center; gap: 8px;
+}
+.score-team {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 6px 4px 10px;
+}
+.score-team.a { border-color: rgba(59,130,246,.35); }
+.score-team.b { border-color: rgba(249,115,22,.35); }
+.score-name {
+  font-size: 12px; font-weight: 700;
+  max-width: 90px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.score-team.a .score-name { color: var(--accent); }
+.score-team.b .score-name { color: var(--orange); }
+.score-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px; font-weight: 800;
+  min-width: 28px; text-align: center;
+}
+.score-team.a .score-num { color: var(--accent); }
+.score-team.b .score-num { color: var(--orange); }
+.score-btns { display: flex; gap: 2px; }
+.sbtn {
+  width: 24px; height: 24px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--dim);
+  font-size: 13px; font-weight: 700;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .12s, color .12s;
+  line-height: 1;
+}
+.score-team.a .sbtn:hover { background: rgba(59,130,246,.2); color: var(--accent); border-color: var(--accent); }
+.score-team.b .sbtn:hover { background: rgba(249,115,22,.2);  color: var(--orange); border-color: var(--orange); }
+.score-vs {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 700; color: var(--dim);
+}
+.score-reset {
+  width: 24px; height: 24px;
+  border-radius: 5px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--dim);
+  font-size: 12px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .12s, color .12s;
+  title: 'Reiniciar marcador';
+}
+.score-reset:hover { color: var(--red); border-color: var(--red); background: rgba(239,68,68,.1); }
+
+/* ── TIMER + PROGRESO ── */
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.progress-wrap { display: flex; align-items: center; gap: 10px; }
+.progress-txt { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--dim); }
+.progress-bar-bg { width: 120px; height: 5px; background: var(--surface2); border-radius: 10px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--accent); border-radius: 10px; transition: width .4s ease; }
+
+.timer-wrap {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 6px 12px;
+  transition: border-color .3s, background .3s;
+}
+.timer-wrap.warn   { border-color: rgba(245,158,11,.5);  background: rgba(245,158,11,.07); }
+.timer-wrap.danger { border-color: rgba(239,68,68,.5);   background: rgba(239,68,68,.07); }
+.timer-ring { position: relative; width: 36px; height: 36px; flex-shrink: 0; }
+.timer-ring svg { transform: rotate(-90deg); }
+.timer-ring .ring-bg   { fill: none; stroke: var(--border); stroke-width: 3; }
+.timer-ring .ring-fill {
+  fill: none; stroke: var(--accent); stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 109.96; stroke-dashoffset: 0;
+  transition: stroke-dashoffset .9s linear, stroke .3s;
+}
+.timer-ring .ring-fill.warn   { stroke: var(--yellow); }
+.timer-ring .ring-fill.danger { stroke: var(--red); }
+.timer-num {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 700; color: var(--txt);
+}
+.timer-controls { display: flex; gap: 5px; }
+.tbtn {
+  width: 28px; height: 28px; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--dim); font-size: 13px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.tbtn:hover { background: var(--surface2); color: var(--txt); border-color: var(--accent); }
+
+/* ── STAGE ── */
+.stage {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px 24px;
+}
+.q-card {
+  width: 100%; max-width: 860px;
+  display: flex; flex-direction: column; gap: 28px;
+}
+.q-meta { display: flex; align-items: center; gap: 12px; }
+.q-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 700;
+  color: var(--accent);
+  background: rgba(59,130,246,.12);
+  border: 1px solid rgba(59,130,246,.3);
+  border-radius: 6px; padding: 4px 12px;
+}
+.q-tag { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+.q-text {
+  font-size: clamp(18px, 2.8vw, 26px);
+  font-weight: 700; color: var(--txt);
+  line-height: 1.35; text-wrap: balance;
+}
+.options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.opt {
+  position: relative;
+  background: var(--surface); border: 2px solid var(--border); border-radius: 12px;
+  padding: 16px 18px 16px 52px;
+  font-size: clamp(13px, 1.8vw, 16px); font-weight: 500; color: var(--txt);
+  cursor: default; transition: border-color .2s, background .2s; line-height: 1.4;
+}
+.opt-letter {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  width: 26px; height: 26px; border-radius: 6px;
+  background: var(--surface2); border: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--dim);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.opt.correct { border-color: var(--green); background: rgba(34,197,94,.08); }
+.opt.correct .opt-letter { background: rgba(34,197,94,.2); border-color: var(--green); color: var(--green); }
+.opt.wrong   { border-color: var(--red); background: rgba(239,68,68,.06); opacity: .55; }
+.opt.wrong .opt-letter   { background: rgba(239,68,68,.15); border-color: var(--red); color: var(--red); }
+.opt code {
+  font-family: 'JetBrains Mono', monospace; font-size: .88em;
+  background: var(--surface2); padding: 1px 5px; border-radius: 4px; color: #93c5fd;
+}
+.explanation {
+  background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.25);
+  border-radius: 10px; padding: 14px 18px;
+  font-size: 13px; color: #86efac; line-height: 1.55; display: none;
+}
+.explanation.visible { display: block; }
+.explanation strong { color: var(--green); }
+
+/* ── CONTROLS ── */
+.controls {
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 16px 24px; background: var(--surface); border-top: 1px solid var(--border);
+}
+.btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--txt); font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.btn:hover { background: #2d3450; border-color: var(--accent); color: var(--accent); }
+.btn:disabled { opacity: .35; cursor: default; pointer-events: none; }
+.btn.primary { background: rgba(59,130,246,.15); border-color: rgba(59,130,246,.4); color: var(--accent); }
+.btn.primary:hover { background: rgba(59,130,246,.25); }
+.btn.reveal  { background: rgba(34,197,94,.12);  border-color: rgba(34,197,94,.35);  color: var(--green); }
+.btn.reveal:hover  { background: rgba(34,197,94,.22); }
+.btn.setup-back { background: rgba(167,139,250,.1); border-color: rgba(167,139,250,.3); color: var(--purple); font-size: 12px; padding: 8px 14px; }
+.btn.setup-back:hover { background: rgba(167,139,250,.2); }
+
+/* ── WINNER BANNER ── */
+.winner-banner {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(15,17,23,.92);
+  z-index: 100;
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 20px;
+  text-align: center; padding: 40px;
+}
+.winner-banner.visible { display: flex; }
+.winner-trophy { font-size: 80px; }
+.winner-label { font-size: 14px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+.winner-name  { font-size: clamp(32px, 6vw, 56px); font-weight: 800; }
+.winner-score { font-family: 'JetBrains Mono', monospace; font-size: 22px; color: var(--dim); }
+.winner-close {
+  margin-top: 12px; padding: 12px 32px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--txt);
+  font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: border-color .15s;
+}
+.winner-close:hover { border-color: var(--accent); color: var(--accent); }
+
+@media (max-width: 620px) {
+  .options-grid { grid-template-columns: 1fr; }
+  .teams-setup  { grid-template-columns: 1fr; }
+  .topbar { gap: 8px; }
+  .progress-bar-bg { width: 80px; }
+}
+</style>
+
+<!-- ══════════════════════════════════════
+     PANTALLA 1 — SETUP
+══════════════════════════════════════ -->
+<div id="screen-setup">
+  <div class="setup-title">
+    <div class="eyebrow">SENA ADSO · Ficha 3229944 · S11 – S17</div>
+    <h1>Quiz Jenga — TechStore Pro</h1>
+    <p>Ingresa el nombre de cada equipo y lee las reglas antes de empezar.</p>
+  </div>
+
+  <div class="teams-setup">
+    <div class="team-input-wrap a">
+      <label>Equipo A</label>
+      <input id="name-a" type="text" maxlength="20" placeholder="Nombre del equipo A" value="Equipo A">
+    </div>
+    <div class="team-input-wrap b">
+      <label>Equipo B</label>
+      <input id="name-b" type="text" maxlength="20" placeholder="Nombre del equipo B" value="Equipo B">
+    </div>
+  </div>
+
+  <div class="rules-card">
+    <h3>📋 Reglas del juego</h3>
+    <div class="rules-list">
+      <div class="rule-item"><span class="rule-icon">👥</span><span><strong>2 equipos de 8.</strong> Se turnan: primero un aprendiz del Equipo A, luego uno del Equipo B.</span></div>
+      <div class="rule-item"><span class="rule-icon">🎯</span><span>El instructor proyecta la pregunta y elige quién responde. El equipo contrario guarda <strong>silencio total</strong>.</span></div>
+      <div class="rule-item"><span class="rule-icon">⏱</span><span><strong>60 segundos</strong> para responder. El instructor inicia el tiempo con ▶ cuando quiera.</span></div>
+      <div class="rule-item"><span class="rule-icon">✅</span><span><strong>Acierta →</strong> su equipo suma <strong>+1 punto</strong>. No toca la torre.</span></div>
+      <div class="rule-item"><span class="rule-icon">🧱</span><span><strong>Falla →</strong> saca una pieza del Jenga con <strong>una sola mano</strong>. La mano se elige antes de empezar y <strong>no se cambia en toda la partida</strong>.</span></div>
+      <div class="rule-item"><span class="rule-icon">☝️</span><span>Una vez que la mano toca una pieza, <strong>esa es la pieza</strong>. No se puede cambiar ni sostener la torre con la otra mano.</span></div>
+      <div class="rule-item"><span class="rule-icon">💥</span><span><strong>Si la torre cae →</strong> el equipo del aprendiz que la tumbó <strong>pierde todos sus puntos</strong>. Se arma de nuevo y continúa.</span></div>
+      <div class="rule-item"><span class="rule-icon">🏆</span><span>Al terminar todas las preguntas gana el equipo con <strong>más puntos</strong>. Empate: una pregunta de desempate.</span></div>
+    </div>
+  </div>
+
+  <button class="btn-start" onclick="startQuiz()">Iniciar juego →</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     PANTALLA 2 — QUIZ
+══════════════════════════════════════ -->
+<div id="screen-quiz">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="logo">TechStore Pro</span>
+      <span class="session-badge" id="sess-badge">S11</span>
+    </div>
+
+    <!-- MARCADOR -->
+    <div class="scoreboard">
+      <div class="score-team a">
+        <span class="score-name" id="score-name-a">Equipo A</span>
+        <span class="score-num"  id="score-num-a">0</span>
+        <div class="score-btns">
+          <button class="sbtn" onclick="addPoint('a')" title="+1 punto">+</button>
+          <button class="sbtn" onclick="removePoint('a')" title="-1 punto">−</button>
+        </div>
+      </div>
+      <span class="score-vs">VS</span>
+      <div class="score-team b">
+        <span class="score-name" id="score-name-b">Equipo B</span>
+        <span class="score-num"  id="score-num-b">0</span>
+        <div class="score-btns">
+          <button class="sbtn" onclick="addPoint('b')" title="+1 punto">+</button>
+          <button class="sbtn" onclick="removePoint('b')" title="-1 punto">−</button>
+        </div>
+      </div>
+      <button class="score-reset" onclick="resetScores()" title="Reiniciar marcador">↺</button>
+    </div>
+
+    <div class="topbar-right">
+      <!-- TIMER -->
+      <div class="timer-wrap" id="timer-wrap">
+        <div class="timer-ring">
+          <svg width="36" height="36" viewBox="0 0 40 40">
+            <circle class="ring-bg"   cx="20" cy="20" r="17.5"/>
+            <circle class="ring-fill" cx="20" cy="20" r="17.5" id="ring-fill"/>
+          </svg>
+          <div class="timer-num" id="timer-num">60</div>
+        </div>
+        <div class="timer-controls">
+          <button class="tbtn" id="btn-pause" title="Iniciar / Pausar / Reanudar" onclick="togglePause()">▶</button>
+          <button class="tbtn" title="Reiniciar" onclick="resetTimer()">↺</button>
+        </div>
+      </div>
+      <!-- PROGRESO -->
+      <div class="progress-wrap">
+        <span class="progress-txt" id="prog-txt">1 / 30</span>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="prog-fill" style="width:3.3%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="q-card">
+      <div class="q-meta">
+        <span class="q-num" id="q-num">Pregunta 1</span>
+        <span class="q-tag" id="q-tag">S11 · Node.js + Express</span>
+      </div>
+      <div class="q-text" id="q-text"></div>
+      <div id="q-code-wrap"></div>
+      <div class="options-grid" id="options-grid"></div>
+      <div class="explanation" id="explanation"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn setup-back" onclick="goSetup()">⚙ Configuración</button>
+    <button class="btn" id="btn-prev" onclick="prevQ()">← Anterior</button>
+    <button class="btn reveal" id="btn-reveal" onclick="revealAnswer()">👁 Revelar respuesta</button>
+    <button class="btn primary" id="btn-next" onclick="nextQ()">Siguiente →</button>
+  </div>
+</div>
+
+<!-- WINNER BANNER -->
+<div class="winner-banner" id="winner-banner">
+  <div class="winner-trophy">🏆</div>
+  <div class="winner-label">¡Ganador!</div>
+  <div class="winner-name" id="winner-name"></div>
+  <div class="winner-score" id="winner-score"></div>
+  <button class="winner-close" onclick="closeWinner()">Cerrar</button>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// PREGUNTAS
+// ══════════════════════════════════════
+const QUESTIONS = [
+  { session:'S11', tag:'Node.js + Express',
+    text:'¿Por qué el navegador no puede conectarse directamente a MongoDB Atlas?',
+    options:['MongoDB Atlas no tiene internet','El navegador no tiene permiso para abrir conexiones de base de datos directas','Falta instalar un plugin en Chrome','Solo funciona desde Safari'],
+    correct:1, explanation:'El navegador solo habla HTTP. MongoDB usa su propio protocolo de red. Por eso existe el servidor Node.js: actúa de intermediario entre el navegador y la base de datos.' },
+  { session:'S11', tag:'Node.js + Express',
+    text:'¿Qué comando se ejecuta para crear el archivo <code>package.json</code> en la carpeta backend?',
+    options:['<code>npm start</code>','<code>node init</code>','<code>npm init -y</code>','<code>npm install express</code>'],
+    correct:2, explanation:'<code>npm init -y</code> genera el package.json con valores por defecto. El flag <code>-y</code> responde "sí" a todas las preguntas automáticamente.' },
+  { session:'S11', tag:'Node.js + Express',
+    text:'En S11 el servidor leía los productos desde un archivo JSON local. ¿Cuál era la ruta del archivo?',
+    options:['<code>backend/productos.json</code>','<code>server/data.json</code>','<code>../frontend/data/productos.json</code>','<code>public/productos.json</code>'],
+    correct:2, explanation:'El servidor en <code>backend/server.js</code> hacía <code>require(\'../frontend/data/productos.json\')</code>. Si alguien modificaba datos en Atlas el servidor no se enteraba.' },
+  { session:'S11', tag:'Node.js + Express',
+    text:'¿En qué puerto escucha el servidor TechStore Pro?',
+    options:['5500','8080','3000','443'],
+    correct:2, explanation:'El servidor usa <code>const PORT = process.env.PORT || 3000</code>. Si no hay variable de entorno, usa 3000 por defecto.' },
+  { session:'S11', tag:'Node.js + Express',
+    text:'Para que Express lea el JSON que envía Postman en el body, hay que agregar...',
+    options:['<code>app.use(express.text())</code>','<code>app.use(express.json())</code>','<code>app.set("json", true)</code>','No hace falta nada, Express lo hace solo'],
+    correct:1, explanation:'<code>app.use(express.json())</code> es un middleware que parsea el body de las peticiones con Content-Type: application/json y lo pone disponible en <code>req.body</code>.' },
+
+  { session:'S12', tag:'Mongoose + Atlas',
+    text:'¿Qué es un Schema en Mongoose?',
+    options:['El nombre de la base de datos en Atlas','La URL de conexión a MongoDB','La estructura que define los campos y tipos de un documento','Un tipo especial de petición HTTP'],
+    correct:2, explanation:'El Schema es el "molde": define qué campos tiene un documento, qué tipo de datos acepta y qué reglas debe cumplir. El Model se genera a partir del Schema.' },
+  { session:'S12', tag:'Mongoose + Atlas',
+    text:'¿Qué método de Mongoose se usó en S12 para obtener todos los productos de Atlas?',
+    options:['<code>Producto.get()</code>','<code>Producto.find()</code>','<code>Producto.fetchAll()</code>','<code>Producto.query({})</code>'],
+    correct:1, explanation:'<code>Producto.find()</code> sin argumentos retorna todos los documentos de la colección. Es el equivalente a <code>SELECT * FROM productos</code> en SQL.' },
+  { session:'S12', tag:'Mongoose + Atlas',
+    text:'¿Por qué el servidor S11 no detectaba cambios hechos directamente en Atlas?',
+    options:['Porque MongoDB Atlas es de solo lectura','Porque el servidor leía un archivo JSON local, no la base de datos','Porque faltaba reiniciar el navegador','Porque Postman bloqueaba las actualizaciones'],
+    correct:1, explanation:'En S11 el servidor hacía <code>require(\'../frontend/data/productos.json\')</code>. Si alguien editaba datos en Atlas, el archivo JSON no cambiaba y el servidor seguía devolviendo datos viejos.' },
+  { session:'S12', tag:'Mongoose + Atlas',
+    text:'La cadena de conexión a MongoDB Atlas se guarda en una variable de entorno llamada...',
+    options:['<code>MONGO_URL</code>','<code>DB_CONNECTION</code>','<code>MONGODB_URI</code>','<code>ATLAS_STRING</code>'],
+    correct:2, explanation:'La variable en el archivo <code>.env</code> se llama <code>MONGODB_URI</code>. El archivo <code>.env</code> nunca se sube a GitHub porque contiene credenciales.' },
+
+  { session:'S13', tag:'CRUD Completo',
+    text:'¿Qué código HTTP devuelve la ruta POST cuando crea un producto correctamente?',
+    options:['200','201','400','204'],
+    correct:1, explanation:'<code>201 Created</code> es el código REST para "recurso creado exitosamente". El 200 se usa para respuestas sin creación de nuevo recurso.' },
+  { session:'S13', tag:'CRUD Completo',
+    text:'¿Qué método de Mongoose se usa para actualizar un producto por su _id?',
+    options:['<code>Producto.update()</code>','<code>Producto.edit()</code>','<code>Producto.findByIdAndUpdate()</code>','<code>Producto.modify()</code>'],
+    correct:2, explanation:'<code>Producto.findByIdAndUpdate(id, datos, { new: true })</code>. El tercer argumento <code>{ new: true }</code> hace que retorne el documento ya actualizado, no el anterior.' },
+  { session:'S13', tag:'CRUD Completo',
+    text:'CRUD significa:',
+    options:['Create, Read, Update, Delete','Connect, Request, Upload, Download','Code, Run, Use, Deploy','Create, Remove, Update, Display'],
+    correct:0, explanation:'CRUD son las 4 operaciones básicas de cualquier sistema de datos: Create (POST), Read (GET), Update (PUT), Delete (DELETE).' },
+  { session:'S13', tag:'CRUD Completo',
+    text:'¿Qué verbo HTTP se usa para eliminar un producto?',
+    options:['POST','GET','REMOVE','DELETE'],
+    correct:3, explanation:'El verbo DELETE indica al servidor que debe eliminar el recurso identificado por la URL. En Express: <code>app.delete(\'/api/productos/:id\', ...)</code>.' },
+  { session:'S13', tag:'CRUD Completo',
+    text:'¿Qué significa <code>:id</code> en la ruta <code>/api/productos/:id</code>?',
+    options:['Un número fijo que siempre es 1','Un parámetro variable que Express captura en <code>req.params.id</code>','Una variable de entorno del servidor','El nombre del campo en MongoDB'],
+    correct:1, explanation:'<code>:id</code> es un parámetro de ruta. Express lo captura y lo pone en <code>req.params.id</code>. Así la misma ruta sirve para cualquier producto.' },
+
+  { session:'S14', tag:'Autenticación JWT',
+    text:'¿Por qué nunca se guarda la contraseña en texto plano en MongoDB?',
+    options:['MongoDB no acepta strings con caracteres especiales','Si alguien accede a la base de datos, vería las contraseñas de todos los usuarios','Las contraseñas largas no caben en un String','Express las borra automáticamente'],
+    correct:1, explanation:'Si la base de datos es comprometida y las contraseñas están en texto plano, el atacante tiene acceso inmediato a todas las cuentas. Con bcrypt obtiene solo hashes inútiles.' },
+  { session:'S14', tag:'Autenticación JWT',
+    text:'¿Qué hace <code>bcrypt.hash(password, 10)</code>?',
+    options:['Encripta la contraseña con 10 caracteres máximo','Compara la contraseña con el hash guardado en Atlas','Genera un hash de la contraseña usando 10 rondas de encriptación','Elimina los primeros 10 caracteres de la contraseña'],
+    correct:2, explanation:'El segundo argumento (10) son las "salt rounds" — cuántas veces se aplica el algoritmo. Más rondas = hash más seguro pero más lento. 10 es el estándar recomendado.' },
+  { session:'S14', tag:'Autenticación JWT',
+    text:'¿Cómo se envía el token JWT en Postman para acceder a una ruta protegida?',
+    options:['En el body como campo "token"','En el header <code>Authorization: Bearer &lt;token&gt;</code>','En la URL como parámetro <code>?token=...</code>','En el campo "Password" de la pestaña Auth'],
+    correct:1, explanation:'El estándar Bearer Token usa el header <code>Authorization</code> con el prefijo <code>Bearer</code> seguido de un espacio y el token. El middleware del servidor lo lee de ahí.' },
+  { session:'S14', tag:'Autenticación JWT',
+    text:'¿Cuánto dura el token JWT generado en TechStore Pro?',
+    options:['1 hora','7 días','24 horas','Indefinido'],
+    correct:2, explanation:'<code>jwt.sign({...}, process.env.JWT_SECRET, { expiresIn: \'24h\' })</code>. Después de 24 horas el token expira y el usuario debe volver a hacer login.' },
+  { session:'S14', tag:'Autenticación JWT',
+    text:'¿Qué responde el servidor si el token JWT es inválido o no se envía?',
+    options:['200 OK con datos vacíos','404 Not Found','401 Unauthorized','500 Internal Server Error'],
+    correct:2, explanation:'401 Unauthorized significa "no estás autenticado". El middleware <code>verificarToken</code> retorna <code>res.status(401).json({ error: \'Token requerido\' })</code>.' },
+
+  { session:'S15', tag:'Roles + Órdenes',
+    text:'¿Qué hace <code>enum: [\'admin\', \'cliente\']</code> en el Schema de Usuario?',
+    options:['Crea dos colecciones separadas en Atlas','Solo acepta esos dos valores — cualquier otro da error de validación','Muestra un menú desplegable en Postman','Ordena los usuarios alfabéticamente'],
+    correct:1, explanation:'<code>enum</code> en Mongoose actúa como una lista de valores válidos. Si intentas guardar <code>rol: "superadmin"</code>, Mongoose lanza un error de validación antes de tocar la base de datos.' },
+  { session:'S15', tag:'Roles + Órdenes',
+    text:'En S15 las rutas de productos se movieron de server.js a un archivo separado. ¿Cómo se llama?',
+    options:['<code>backend/controllers/productos.js</code>','<code>backend/api/productos.js</code>','<code>backend/routes/productos.js</code>','<code>backend/handlers/productos.js</code>'],
+    correct:2, explanation:'La carpeta <code>routes/</code> agrupa todos los archivos de rutas: <code>auth.js</code>, <code>productos.js</code> y <code>ordenes.js</code>. Esto se llama refactorización: mismo comportamiento, mejor estructura.' },
+  { session:'S15', tag:'Roles + Órdenes',
+    text:'¿Para qué sirve <code>populate()</code> en Mongoose?',
+    options:['Para contar cuántos documentos hay en una colección','Para reemplazar un ObjectId referenciado con el documento real','Para ordenar los resultados de una consulta','Para crear índices en la base de datos'],
+    correct:1, explanation:'Cuando una orden guarda el <code>_id</code> de un producto, <code>populate(\'productos.producto\')</code> reemplaza ese id con el objeto completo. Sin populate verías solo el id; con populate ves nombre, precio, etc.' },
+  { session:'S15', tag:'Roles + Órdenes',
+    text:'¿Qué código HTTP devuelve el servidor cuando un cliente intenta crear un producto (acción solo de admin)?',
+    options:['401 Unauthorized','403 Forbidden','404 Not Found','400 Bad Request'],
+    correct:1, explanation:'401 = no tienes token. 403 = tienes token válido pero no tienes permiso. El middleware <code>verificarAdmin</code> retorna 403 cuando el usuario autenticado tiene <code>rol: "cliente"</code>.' },
+
+  { session:'S16', tag:'API Testing Postman',
+    text:'En Postman, ¿para qué sirve una "Colección"?',
+    options:['Para guardar las respuestas del servidor','Para agrupar y organizar varias requests relacionadas','Para ejecutar requests automáticamente cada hora','Para conectarse a MongoDB Atlas directamente'],
+    correct:1, explanation:'Una colección agrupa requests relacionadas. En S16 crearon la colección "TechStore Pro API" con 3 carpetas: Auth, Productos y Órdenes — 11 requests en total.' },
+  { session:'S16', tag:'API Testing Postman',
+    text:'¿Por qué se usó <code>{{base_url}}</code> en lugar de escribir <code>http://localhost:3000</code> en cada request?',
+    options:['Postman no acepta URLs con números','Para cambiar la URL en un solo lugar cuando el servidor cambia de dirección','Porque localhost no funciona en Postman','Es obligatorio por las reglas de Postman'],
+    correct:1, explanation:'Las variables de entorno de Postman permiten centralizar valores. Si el backend pasa a producción, solo cambias <code>base_url</code> en el environment y todas las requests se actualizan automáticamente.' },
+  { session:'S16', tag:'API Testing Postman',
+    text:'¿Qué hace el script Post-response en los requests de Login?',
+    options:['Envía el token al servidor para verificarlo','Guarda el token JWT recibido en una variable del environment','Elimina el token cuando caduca','Muestra el token en la consola de VS Code'],
+    correct:1, explanation:'El script <code>pm.environment.set("token", res.token)</code> guarda el token en <code>{{token}}</code> del environment activo. Así las requests protegidas lo usan automáticamente sin copiar y pegar.' },
+  { session:'S16', tag:'API Testing Postman',
+    text:'¿Por qué se crearon 2 requests de Login (Login cliente y Login admin) en la colección?',
+    options:['Porque Postman no permite usar el mismo endpoint dos veces','Porque cada una tiene su environment activo diferente y guarda el token en ese environment','Porque admin y cliente usan endpoints distintos','Por requisito del proyecto SENA'],
+    correct:1, explanation:'Cada Login apunta a su environment. Al hacer Send en "Login cliente" con TechStore Local Cliente activo, el script guarda el token de cliente en ESE environment, sin mezclar tokens.' },
+
+  { session:'S17', tag:'Frontend + Backend',
+    text:'¿Qué problema ocurre si el backend no tiene <code>app.use(cors())</code>?',
+    options:['El servidor no arranca','MongoDB Atlas se desconecta','El navegador bloquea las respuestas del servidor por política de seguridad','Postman deja de funcionar'],
+    correct:2, explanation:'CORS protege al usuario bloqueando requests entre orígenes distintos. El frontend corre en el puerto 5500 (Live Server) y el backend en 3000 — sin CORS, el navegador bloquea las respuestas.' },
+  { session:'S17', tag:'Frontend + Backend',
+    text:'En main.js, ¿qué línea se cambió en S17 para conectar productos al backend real?',
+    options:['<code>fetch(\'data/productos.json\')</code> → <code>fetch(\'api/productos\')</code>','<code>fetch(\'data/productos.json\')</code> → <code>fetch(\'http://localhost:3000/api/productos\')</code>','<code>require(\'productos.json\')</code> → <code>fetch(\'mongodb://...\')</code>','Solo se cambió el puerto de 5500 a 3000'],
+    correct:1, explanation:'Una sola línea conecta el frontend al backend real. El servidor Express recibe la petición, consulta MongoDB Atlas y devuelve los productos en JSON.' },
+  { session:'S17', tag:'Frontend + Backend',
+    text:'¿Por qué en registro.js no se declara <code>const departamento</code> como las demás variables?',
+    options:['Porque departamento no se envía al backend','Porque el valor se usa solo una vez, directamente dentro del body del fetch','Porque Express no acepta el campo departamento','Porque el select de departamento no tiene value'],
+    correct:1, explanation:'El departamento se usa una sola vez — en el <code>body</code> del fetch. Se lee con <code>selectDepto.options[selectDepto.selectedIndex].textContent</code> para obtener el nombre, no el id numérico.' },
+];
+
+// ══════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════
+let current  = 0;
+let revealed = false;
+let scores   = { a: 0, b: 0 };
+let nameA    = 'Equipo A';
+let nameB    = 'Equipo B';
+
+// ── TIMER ──
+const TOTAL_SECS  = 60;
+const CIRCUMFERENCE = 109.96;
+let timeLeft     = TOTAL_SECS;
+let timerInterval = null;
+let timerRunning  = false;
+let paused        = false;
+
+// ══════════════════════════════════════
+// SETUP → QUIZ
+// ══════════════════════════════════════
+function startQuiz() {
+  nameA = document.getElementById('name-a').value.trim() || 'Equipo A';
+  nameB = document.getElementById('name-b').value.trim() || 'Equipo B';
+  document.getElementById('score-name-a').textContent = nameA;
+  document.getElementById('score-name-b').textContent = nameB;
+  document.getElementById('screen-setup').style.display = 'none';
+  const q = document.getElementById('screen-quiz');
+  q.style.display = 'flex';
+  render();
+}
+
+function goSetup() {
+  document.getElementById('screen-quiz').style.display = 'none';
+  document.getElementById('screen-setup').style.display = 'flex';
+  clearInterval(timerInterval);
+  timerRunning = false;
+}
+
+// ══════════════════════════════════════
+// MARCADOR
+// ══════════════════════════════════════
+function addPoint(team) {
+  scores[team]++;
+  document.getElementById('score-num-' + team).textContent = scores[team];
+}
+function removePoint(team) {
+  if (scores[team] > 0) scores[team]--;
+  document.getElementById('score-num-' + team).textContent = scores[team];
+}
+function resetScores() {
+  scores = { a: 0, b: 0 };
+  document.getElementById('score-num-a').textContent = 0;
+  document.getElementById('score-num-b').textContent = 0;
+}
+function showWinner() {
+  const banner = document.getElementById('winner-banner');
+  const wname  = document.getElementById('winner-name');
+  const wscore = document.getElementById('winner-score');
+  if (scores.a === scores.b) {
+    wname.textContent  = '¡Empate!';
+    wname.style.color  = 'var(--yellow)';
+    wscore.textContent = `${nameA} ${scores.a} — ${scores.b} ${nameB}`;
+  } else if (scores.a > scores.b) {
+    wname.textContent  = nameA;
+    wname.style.color  = 'var(--accent)';
+    wscore.textContent = `${scores.a} pts vs ${scores.b} pts`;
+  } else {
+    wname.textContent  = nameB;
+    wname.style.color  = 'var(--orange)';
+    wscore.textContent = `${scores.b} pts vs ${scores.a} pts`;
+  }
+  banner.classList.add('visible');
+}
+function closeWinner() {
+  document.getElementById('winner-banner').classList.remove('visible');
+}
+
+// ══════════════════════════════════════
+// TIMER
+// ══════════════════════════════════════
+function updateTimerUI() {
+  const num  = document.getElementById('timer-num');
+  const ring = document.getElementById('ring-fill');
+  const wrap = document.getElementById('timer-wrap');
+  const ratio = timeLeft / TOTAL_SECS;
+  num.textContent = timeLeft;
+  ring.style.strokeDashoffset = CIRCUMFERENCE * (1 - ratio);
+  ring.classList.remove('warn','danger');
+  wrap.classList.remove('warn','danger');
+  if (timeLeft <= 5)       { ring.classList.add('danger'); wrap.classList.add('danger'); }
+  else if (timeLeft <= 20) { ring.classList.add('warn');   wrap.classList.add('warn'); }
+}
+
+function startTimer() {
+  if (timerRunning || revealed) return;
+  timerRunning = true; paused = false;
+  document.getElementById('btn-pause').textContent = '⏸';
+  timerInterval = setInterval(() => {
+    if (paused) return;
+    timeLeft--;
+    updateTimerUI();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval); timerRunning = false;
+      const wrap = document.getElementById('timer-wrap');
+      let blinks = 0;
+      const blink = setInterval(() => {
+        wrap.style.opacity = wrap.style.opacity === '0.3' ? '1' : '0.3';
+        if (++blinks >= 6) { clearInterval(blink); wrap.style.opacity = '1'; }
+      }, 200);
+    }
+  }, 1000);
+}
+
+function resetTimer() {
+  clearInterval(timerInterval); timerRunning = false;
+  timeLeft = TOTAL_SECS; paused = false;
+  document.getElementById('btn-pause').textContent = '▶';
+  document.getElementById('timer-wrap').style.opacity = '1';
+  updateTimerUI();
+}
+
+function togglePause() {
+  if (revealed) return;
+  if (!timerRunning) { startTimer(); return; }
+  paused = !paused;
+  document.getElementById('btn-pause').textContent = paused ? '▶' : '⏸';
+}
+
+// ══════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════
+function render() {
+  const q = QUESTIONS[current];
+  revealed = false;
+  resetTimer();
+
+  document.getElementById('q-num').textContent = `Pregunta ${current + 1}`;
+  document.getElementById('q-tag').textContent = `${q.session} · ${q.tag}`;
+  document.getElementById('sess-badge').textContent = q.session;
+  document.getElementById('prog-txt').textContent = `${current + 1} / ${QUESTIONS.length}`;
+  document.getElementById('prog-fill').style.width = ((current + 1) / QUESTIONS.length * 100) + '%';
+  document.getElementById('q-text').innerHTML = q.text;
+
+  const codeWrap = document.getElementById('q-code-wrap');
+  codeWrap.innerHTML = q.code ? `<div class="q-code">${q.code}</div>` : '';
+
+  const letters = ['A','B','C','D'];
+  document.getElementById('options-grid').innerHTML = q.options.map((opt, i) =>
+    `<div class="opt" id="opt-${i}"><span class="opt-letter">${letters[i]}</span>${opt}</div>`
+  ).join('');
+
+  const exp = document.getElementById('explanation');
+  exp.classList.remove('visible');
+  exp.innerHTML = `<strong>✅ Respuesta correcta: ${letters[q.correct]} —</strong> ${q.explanation}`;
+
+  document.getElementById('btn-prev').disabled   = current === 0;
+  document.getElementById('btn-next').disabled   = current === QUESTIONS.length - 1;
+  document.getElementById('btn-reveal').disabled = false;
+}
+
+function revealAnswer() {
+  if (revealed) return;
+  revealed = true;
+  clearInterval(timerInterval); timerRunning = false;
+  document.getElementById('btn-pause').textContent = '▶';
+  const q = QUESTIONS[current];
+  q.options.forEach((_, i) => {
+    document.getElementById(`opt-${i}`).classList.add(i === q.correct ? 'correct' : 'wrong');
+  });
+  document.getElementById('explanation').classList.add('visible');
+  document.getElementById('btn-reveal').disabled = true;
+}
+
+function nextQ() {
+  if (current < QUESTIONS.length - 1) { current++; render(); }
+  else showWinner();
+}
+function prevQ() {
+  if (current > 0) { current--; render(); }
+}
+
+document.addEventListener('keydown', e => {
+  if (document.getElementById('screen-setup').style.display !== 'none') return;
+  if (e.key === 'ArrowRight' || e.key === 'PageDown') nextQ();
+  if (e.key === 'ArrowLeft'  || e.key === 'PageUp')   prevQ();
+  if ((e.key === ' ' || e.key === 'Enter') && !['INPUT','BUTTON'].includes(document.activeElement.tagName)) {
+    e.preventDefault(); revealAnswer();
+  }
+});
+</script>
